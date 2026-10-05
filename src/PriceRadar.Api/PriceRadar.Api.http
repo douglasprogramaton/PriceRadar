@@ -1,0 +1,6 @@
+@PriceRadar.Api_HostAddress = http://localhost:5157
+
+GET {{PriceRadar.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
