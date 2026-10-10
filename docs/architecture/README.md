@@ -1,406 +1,103 @@
-# 🏗️ Arquitetura do PriceRadar
+# Arquitetura — PriceRadar
 
-Este documento descreve a arquitetura inicial do **PriceRadar**, suas camadas, responsabilidades e regras de dependência.
+## Contexto e objetivo
 
-O objetivo é manter uma base de código **organizada, testável, desacoplada e preparada para evoluir** conforme novas funcionalidades forem adicionadas ao projeto.
+O PriceRadar compara ofertas online de múltiplas categorias, priorizando **elegibilidade de loja e vendedor**, correspondência correta do produto e transparência dos preços. Substitui a proposta anterior centrada em supermercados, distância e combustível. Ver [ADR-001](ADR-001-new-scope.md).
 
----
+O repositório mantém **DDD, Clean Architecture e .NET 10**, com as camadas já existentes. Este documento descreve a arquitetura **alvo**, não funcionalidades já implementadas.
 
-## 📌 Visão Geral
-
-O **PriceRadar** é uma aplicação para comparação de preços de produtos entre mercados, considerando não apenas o preço dos produtos, mas também fatores relacionados à localização e ao deslocamento do usuário.
-
-A solução está sendo estruturada utilizando princípios de:
-
-- **Clean Architecture**
-- **Domain-Driven Design (DDD)**
-- **SOLID**
-- **Separation of Concerns**
-- **Dependency Inversion**
-
-A arquitetura inicial possui quatro projetos principais:
-
-| Projeto | Responsabilidade |
-|---|---|
-| `PriceRadar.Domain` | Regras e conceitos centrais do negócio |
-| `PriceRadar.Application` | Casos de uso e orquestração da aplicação |
-| `PriceRadar.Infrastructure` | Banco de dados, integrações e serviços externos |
-| `PriceRadar.Api` | Interface HTTP e ponto de entrada da aplicação |
-
----
-
-## 📂 Estrutura do Repositório
+## Estrutura existente
 
 ```text
 PriceRadar/
-│
 ├── src/
 │   ├── PriceRadar.Domain/
 │   ├── PriceRadar.Application/
 │   ├── PriceRadar.Infrastructure/
 │   └── PriceRadar.Api/
-│
-├── tests/
-│
 ├── docs/
 │   ├── architecture/
-│   ├── database/
 │   └── requirements/
-│
-├── PriceRadar.slnx
-└── .gitignore
+└── PriceRadar.slnx
 ```
 
-### `src/`
+Os projetos já existem; as entidades, serviços, adaptadores e testes descritos a seguir são **planejados**, não criados nesta atualização documental.
 
-Contém o código-fonte da aplicação.
-
-### `tests/`
-
-Será responsável pelos projetos de testes automatizados da solução.
-
-### `docs/`
-
-Centraliza a documentação técnica e funcional do PriceRadar.
-
-A documentação será separada por assunto:
+## Responsabilidades e dependências
 
 ```text
-docs/
-├── architecture/   # Arquitetura e decisões técnicas
-├── database/       # Modelagem e documentação do banco de dados
-└── requirements/   # Requisitos funcionais e não funcionais
+Api ───────────► Application ───────────► Domain
+                    ▲
+                    │ implementações de portas
+Infrastructure ─────┘
 ```
 
----
-
-# 🧱 Camadas da Aplicação
-
-## 🟦 Domain
-
-```text
-src/PriceRadar.Domain
-```
-
-A camada **Domain** representa o núcleo do sistema.
-
-Ela contém os conceitos e regras de negócio fundamentais do PriceRadar.
-
-Exemplos de elementos que poderão existir nessa camada:
-
-- entidades;
-- value objects;
-- regras de negócio;
-- enums;
-- exceções de domínio;
-- contratos estritamente relacionados ao domínio.
-
-### Regra importante
-
-> O `Domain` deve permanecer independente das demais camadas e de detalhes externos.
-
-Isso significa que essa camada não deve conhecer:
-
-- banco de dados;
-- Entity Framework;
-- APIs externas;
-- interface web;
-- serviços de e-mail;
-- frameworks de infraestrutura.
-
----
-
-## 🟩 Application
-
-```text
-src/PriceRadar.Application
-```
-
-A camada **Application** contém os casos de uso do sistema.
-
-Ela será responsável por coordenar as operações necessárias para executar as funcionalidades do PriceRadar.
-
-Exemplos futuros:
-
-- pesquisar produtos;
-- comparar preços;
-- criar listas de compras;
-- calcular o custo de uma compra;
-- determinar mercados mais vantajosos;
-- autenticar usuários;
-- recuperar acesso à conta.
-
-A camada:
-
-```text
-Application → Domain
-```
-
-pode depender do `Domain`, mas não deve depender diretamente dos detalhes concretos da infraestrutura.
-
----
-
-## 🟨 Infrastructure
-
-```text
-src/PriceRadar.Infrastructure
-```
-
-A camada **Infrastructure** implementa os recursos técnicos necessários para que os casos de uso funcionem.
-
-Ela poderá conter:
-
-- persistência de dados;
-- Entity Framework Core;
-- acesso ao banco de dados;
-- implementação de repositórios;
-- integrações com APIs externas;
-- serviços de localização;
-- serviços de mapas e distância;
-- envio de e-mails;
-- autenticação e serviços externos;
-- cache;
-- logging;
-- outras integrações.
-
-A infraestrutura implementará contratos definidos pelas camadas internas quando necessário.
-
----
-
-## 🟥 API
-
-```text
-src/PriceRadar.Api
-```
-
-A camada **API** será o ponto de entrada HTTP do backend.
-
-Ela será responsável por:
-
-1. receber requisições;
-2. validar os dados de entrada quando aplicável;
-3. encaminhar a operação para a camada `Application`;
-4. transformar o resultado em uma resposta HTTP;
-5. retornar a resposta ao cliente.
-
-Exemplo conceitual:
-
-```text
-Cliente
-   │
-   ▼
-PriceRadar.Api
-   │
-   ▼
-PriceRadar.Application
-   │
-   ▼
-PriceRadar.Domain
-```
-
-A API não deve concentrar regras de negócio.
-
----
-
-# 🔗 Regra de Dependência
-
-Uma das principais regras da arquitetura é manter as dependências apontando para as camadas internas.
-
-Visão simplificada:
-
-```text
-                  ┌───────────────────────┐
-                  │    PriceRadar.Api     │
-                  └───────────┬───────────┘
-                              │
-                              ▼
-                  ┌───────────────────────┐
-                  │ PriceRadar.Application│
-                  └───────────┬───────────┘
-                              │
-                              ▼
-                  ┌───────────────────────┐
-                  │   PriceRadar.Domain   │
-                  └───────────────────────┘
-                              ▲
-                              │
-                  ┌───────────┴───────────┐
-                  │PriceRadar.Infrastructure│
-                  └───────────────────────┘
-```
-
-De forma resumida:
-
-```text
-API -------------> Application -------------> Domain
-                         ▲
-                         │
-Infrastructure ----------┘
-```
-
-### Dependências permitidas inicialmente
-
-```text
-PriceRadar.Application
-└── PriceRadar.Domain
-
-PriceRadar.Infrastructure
-└── PriceRadar.Application
-
-PriceRadar.Api
-└── PriceRadar.Application
-```
-
-Essas dependências poderão evoluir conforme a arquitetura for implementada, mas sempre preservando a independência das regras centrais do negócio.
-
----
-
-# 🚫 O que queremos evitar
-
-Para manter o projeto saudável, devemos evitar:
-
-- regras de negócio dentro de controllers/endpoints;
-- `Domain` dependendo de banco de dados;
-- acesso direto ao banco pela API;
-- classes com muitas responsabilidades;
-- dependências circulares;
-- código de infraestrutura misturado com regras de negócio;
-- credenciais e secrets versionados no Git;
-- arquivos gerados por compilação no repositório.
-
----
-
-# 🧪 Testabilidade
-
-A separação das camadas também permitirá criar testes de forma organizada.
-
-A estrutura prevista é:
-
-```text
-tests/
-├── PriceRadar.Domain.Tests/
-├── PriceRadar.Application.Tests/
-├── PriceRadar.Infrastructure.Tests/
-└── PriceRadar.Api.Tests/
-```
-
-Os projetos de teste serão adicionados conforme o desenvolvimento avançar.
-
----
-
-# 🗄️ Persistência de Dados
-
-Os detalhes de persistência ficarão isolados na camada:
-
-```text
-PriceRadar.Infrastructure
-```
-
-O domínio não deverá depender diretamente da tecnologia de banco de dados utilizada.
-
-A documentação específica da modelagem ficará em:
-
-```text
-docs/database/
-```
-
----
-
-# 🔐 Segurança
-
-Informações sensíveis não deverão ser armazenadas diretamente no código-fonte ou enviadas ao repositório.
-
-Exemplos:
-
-- senhas;
-- tokens;
-- chaves de API;
-- strings de conexão contendo credenciais;
-- secrets de serviços externos.
-
-Configurações sensíveis deverão utilizar mecanismos apropriados de configuração e gerenciamento de secrets.
-
----
-
-# 📐 Princípios Arquiteturais
-
-Durante o desenvolvimento do PriceRadar, procuraremos seguir estes princípios:
-
-### Separation of Concerns
-
-Cada camada possui responsabilidades bem definidas.
-
-### Dependency Inversion
-
-As regras de negócio não devem depender diretamente das implementações de infraestrutura.
-
-### Single Responsibility
-
-Classes, serviços e componentes devem possuir responsabilidades claras e específicas.
-
-### Testability
-
-As decisões arquiteturais devem facilitar a criação de testes automatizados.
-
-### Maintainability
-
-A estrutura deve facilitar manutenção, evolução e entendimento do projeto.
-
----
-
-# 🗺️ Evolução da Arquitetura
-
-A arquitetura será documentada progressivamente.
-
-Entre os próximos documentos poderão estar:
-
-```text
-docs/architecture/
-├── README.md
-├── system-context.md
-├── container-diagram.md
-├── dependency-rules.md
-└── decisions/
-```
-
-Também poderão ser adicionados **Architecture Decision Records (ADRs)** para registrar decisões técnicas importantes.
-
-Exemplo:
-
-```text
-docs/architecture/decisions/
-├── ADR-001-clean-architecture.md
-├── ADR-002-database.md
-└── ADR-003-authentication.md
-```
-
----
-
-# 🎯 Objetivo Arquitetural
-
-A arquitetura do PriceRadar deve permitir que o sistema cresça sem transformar o código em uma estrutura difícil de manter.
-
-Buscamos principalmente:
-
-- baixo acoplamento;
-- alta coesão;
-- separação clara de responsabilidades;
-- facilidade de manutenção;
-- facilidade de testes;
-- substituição de tecnologias externas com menor impacto;
-- organização adequada para crescimento;
-- código compreensível para outros desenvolvedores.
-
----
-
-## 📚 Documentação Relacionada
-
-Conforme o projeto evoluir, a documentação será organizada em:
-
-- `docs/architecture` — arquitetura;
-- `docs/database` — banco de dados;
-- `docs/requirements` — requisitos.
-
----
-
-> **Nota:** este documento representa a arquitetura inicial do PriceRadar e será atualizado conforme novas decisões técnicas forem tomadas durante o desenvolvimento.
+- **Domain:** entidades e regras puras, sem HTTP, banco ou dependência de provedores.
+- **Application:** casos de uso, DTOs e contratos de acesso a catálogo, ofertas, avaliações e confiança.
+- **Infrastructure:** implementações de contratos, provedores externos, persistência, cache e observabilidade.
+- **Api:** endpoints, validação de entrada, DI, tratamento de erros e documentação HTTP.
+
+As dependências de compilação existentes serão revisadas quando introduzirmos contratos e implementações; o diagrama indica a direção arquitetural desejada, não a configuração completa atual.
+
+## Conceitos do domínio (propostos)
+
+| Conceito | Responsabilidade |
+|---|---|
+| `Product` | Identidade canônica e atributos do produto. |
+| `ProductVariant` | Modelo, capacidade, cor, tamanho, condição e outros atributos comparáveis. |
+| `Merchant` | Loja/plataforma responsável pela oferta. |
+| `Seller` | Vendedor efetivo, mesmo quando opera dentro de marketplace. |
+| `Offer` | Produto/variante, vendedor, loja, preço, moeda, disponibilidade, URL, data e frete conhecido. |
+| `TrustAssessment` | Estado, evidências, versão da política e validade de aprovação. |
+| `ProductRatingSummary` | Nota agregada, quantidade, fonte e data de coleta, se disponíveis. |
+| `Money` | Valor monetário e moeda, sem operações entre moedas incompatíveis. |
+
+Não modelar reputação do produto como reputação do vendedor. Não assumir GTIN universal para todas as categorias.
+
+## Fluxo de pesquisa
+
+1. Receber termo de busca e filtros.
+2. Consultar catálogo/ofertas por interface da Application, usando fonte autorizada.
+3. Normalizar e associar ofertas à variante correta; casos ambíguos não entram em comparações exatas.
+4. Consultar avaliações de confiança **da loja e do vendedor**.
+5. Excluir ofertas sem aprovação vigente de qualquer uma das partes.
+6. Enriquecer com avaliações de produto disponíveis, sem inventar dados ausentes.
+7. Ordenar ofertas elegíveis por custo conhecido e sinalizar frete indisponível.
+8. Retornar origem e instante de atualização; nunca prometer cobertura de toda a internet.
+
+## Interfaces planejadas (nomes ilustrativos)
+
+- `IProductSearchProvider`: busca e identidade de produtos.
+- `IOfferProvider`: consulta de ofertas e disponibilidade.
+- `ITrustAssessmentProvider`: evidências e estado de aprovação de loja/vendedor.
+- `IProductRatingProvider`: resumo de avaliações de produtos.
+- `IClock`: abstração de tempo para testes e expiração.
+
+Contratos serão desenhados a partir do primeiro caso de uso e não precisam refletir diretamente o formato de APIs externas.
+
+## Segurança e resiliência
+
+- **Fail closed:** ausência/erro/expiração da verificação impede exibição da oferta.
+- Não colocar tokens ou chaves em código, Git ou logs.
+- Validar URLs e restringir destinos para evitar redirecionamentos perigosos.
+- Respeitar limites, licenças, privacidade e termos de integração.
+- Aplicar timeouts, tratamento de falhas e cache com validade explícita.
+- Registrar fonte e timestamp de cada dado; não transformar dado fictício em oferta real.
+
+## Testes previstos
+
+- Unitários de elegibilidade (`Aprovado`/`Pendente`/`Expirado`), incluindo seller de marketplace.
+- Unitários de correspondência de variantes e ordenação por preço/frete.
+- Integração com adaptador simulado, falhas e dados incompletos.
+- Testes de API para resultados vazios e ausência de ofertas confiáveis.
+
+## Próximos incrementos
+
+1. Validar provedor de dados e política de confiança.
+2. Criar testes e entidades mínimas do domínio.
+3. Implementar caso de uso de busca com provedor simulado.
+4. Expor endpoint de pesquisa com respostas transparentes.
+5. Integrar primeiro provedor real autorizado e validar qualidade dos dados.
+6. Evoluir para histórico, alertas e novas fontes em branches específicas.
+
+Consulte [requisitos](../requirements/README.md), [política de confiança](../requirements/trust-policy.md) e [integrações](integrations.md).
