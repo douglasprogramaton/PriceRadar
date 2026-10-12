@@ -5,4 +5,5 @@
     <Project Path="src/PriceRadar.Domain/PriceRadar.Domain.csproj" />
     <Project Path="src/PriceRadar.Infrastructure/PriceRadar.Infrastructure.csproj" />
   </Folder>
+  <Project Path="PriceRadar.Domain.Tests/PriceRadar.Domain.Tests.csproj" Id="29d71365-4069-42a6-a16b-9cc981379847" />
 </Solution>
