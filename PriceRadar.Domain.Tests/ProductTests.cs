@@ -23,16 +23,23 @@ public class ProductTests
         Assert.Equal(model, product.Model);
     }
 
-    [Fact]
-    public void NaoDeveCriarProdutoSemNome()
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    [InlineData("\t")]
+    public void NaoDeveCriarProdutoComNomeInvalido(string name)
     {
-       var exception = Assert.Throws<ArgumentException>(() => new Product("", "Samsung", "UN50"));
+        var exception = Assert.Throws<ArgumentException>(() => new Product(name, "Samsung", "UN50"));
         Assert.Equal("name", exception.ParamName);
     }
-    [Fact]
-    public void NaoDeveCriarProdutoSemMarca()
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    [InlineData("\t")]
+    public void NaoDeveCriarProdutoComMarcaInvalida(string brand)
     {
-        var exception = Assert.Throws<ArgumentException>(() => new Product("Smart TV Samsung", "", "UN50"));
+        var exception = Assert.Throws<ArgumentException>(() => new Product("Smart TV Samsung", brand, "UN50"));
         Assert.Equal("brand", exception.ParamName);
     }
 }
