@@ -26,6 +26,13 @@ public class ProductTests
     [Fact]
     public void NaoDeveCriarProdutoSemNome()
     {
-        Assert.Throws<ArgumentException>(() => new Product("", "Samsung", "UN50"));
+       var exception = Assert.Throws<ArgumentException>(() => new Product("", "Samsung", "UN50"));
+        Assert.Equal("name", exception.ParamName);
+    }
+    [Fact]
+    public void NaoDeveCriarProdutoSemMarca()
+    {
+        var exception = Assert.Throws<ArgumentException>(() => new Product("Smart TV Samsung", "", "UN50"));
+        Assert.Equal("brand", exception.ParamName);
     }
 }
