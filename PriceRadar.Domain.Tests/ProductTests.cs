@@ -42,4 +42,22 @@ public class ProductTests
         var exception = Assert.Throws<ArgumentException>(() => new Product("Smart TV Samsung", brand, "UN50"));
         Assert.Equal("brand", exception.ParamName);
     }
+
+    [Fact]
+    public void DeveAtualizarNomeDoProdutoComNomeValido()
+    {
+        var product = new Product("Galaxy S24", "Samsung", "UN50");
+        product.UpdateName("  Galaxy S25  ");
+        Assert.Equal("Galaxy S25", product.Name);
+    }
+
+    [Fact]
+    public void NaoDeveAtualizarNomeDoProdutoComNomeVazio()
+    {
+        var product = new Product("Galaxy S24", "Samsung", "UN50");
+
+        var exception = Assert.Throws<ArgumentException>(() => product.UpdateName(""));
+
+        Assert.Equal("Galaxy S24", product.Name);
+    }
 }
