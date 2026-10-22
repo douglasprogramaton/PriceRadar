@@ -51,12 +51,15 @@ public class ProductTests
         Assert.Equal("Galaxy S25", product.Name);
     }
 
-    [Fact]
-    public void NaoDeveAtualizarNomeDoProdutoComNomeVazio()
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    [InlineData("\t")]
+    public void NaoDeveAtualizarNomeDoProdutoComNomeInvalido(string name)
     {
         var product = new Product("Galaxy S24", "Samsung", "UN50");
 
-        var exception = Assert.Throws<ArgumentException>(() => product.UpdateName(""));
+        var exception = Assert.Throws<ArgumentException>(() => product.UpdateName(name));
 
         Assert.Equal("Galaxy S24", product.Name);
     }
