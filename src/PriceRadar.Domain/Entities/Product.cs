@@ -21,4 +21,12 @@ public class Product
         Brand = brand.Trim();
         Model = string.IsNullOrWhiteSpace(model) ? null : model.Trim();
     }
+
+    public void UpdateName(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            throw new ArgumentException("O nome do produto é obrigatório.", nameof(name));
+
+        Name = name.Trim();
+    }
 }
