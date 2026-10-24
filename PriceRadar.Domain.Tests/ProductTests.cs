@@ -63,4 +63,47 @@ public class ProductTests
 
         Assert.Equal("Galaxy S24", product.Name);
     }
+
+    [Fact]
+    public void DeveAtualizarMarcaDoProdutoComMarcaValida()
+    {
+        var product = new Product("Galaxy S24", "Samsung", "UN50");
+        product.UpdateBrand("  Apple  ");
+        Assert.Equal("Apple", product.Brand);
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    [InlineData("\t")]
+    public void NaoDeveAtualizarMarcaDoProdutoComMarcaInvalida(string brand)
+    {
+        var product = new Product("Galaxy S24", "Samsung", "UN50");
+        var exception = Assert.Throws<ArgumentException>(() => product.UpdateBrand(brand));
+        Assert.Equal("Samsung", product.Brand);
+    }
+
+    [Fact]
+    public void DeveAtualizarModeloDoProdutoComModeloValido()
+    {
+        var product = new Product("Smart TV", "Samsung", "UN50");
+
+        product.UpdateModel("  UN55  ");
+
+        Assert.Equal("UN55", product.Model);
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    [InlineData("\t")]
+    public void DeveRemoverModeloDoProdutoQuandoReceberValorVazioOuNulo(string? model)
+    {
+        var product = new Product("Smart TV", "Samsung", "UN50");
+
+        product.UpdateModel(model);
+
+        Assert.Null(product.Model);
+    }
 }

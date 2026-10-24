@@ -29,4 +29,17 @@ public class Product
 
         Name = name.Trim();
     }
+
+    public void UpdateBrand(string brand)
+    {
+        if (string.IsNullOrWhiteSpace(brand))
+            throw new ArgumentException("A marca do produto é obrigatória.", nameof(brand));
+
+        Brand = brand.Trim();
+    }
+
+    public void UpdateModel(string? model)
+    {
+        Model = string.IsNullOrWhiteSpace(model) ? null : model.Trim();
+    }
 }
