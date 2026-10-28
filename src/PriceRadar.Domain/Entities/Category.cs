@@ -9,11 +9,26 @@
         public Category(string name, string? description = null)
         {
             if (string.IsNullOrWhiteSpace(name))
-                throw new ArgumentException("O nome da categoria é obrigatório.", nameof(name));
+                throw new ArgumentException(
+                    "O nome da categoria é obrigatório.",
+                    nameof(name));
             Id = Guid.NewGuid();
             Name = name.Trim();
             Description = string.IsNullOrWhiteSpace(description) ? null : description.Trim();
         }
 
+        public void UpdateName(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentException(
+                    "O nome da categoria é obrigatório.",
+                    nameof(name));
+            Name = name.Trim();
+        }
+
+        public void UpdateDescription(string? description)
+        {
+            Description = string.IsNullOrWhiteSpace(description) ? null : description.Trim();// Ternario
+        }   
     }
 }

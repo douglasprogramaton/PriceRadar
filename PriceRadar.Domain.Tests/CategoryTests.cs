@@ -57,5 +57,46 @@ namespace PriceRadar.Domain.Tests
             var category = new Category("Eletrônicos", description);
             Assert.Equal("Celulares, televisores e computadores", category.Description);
         }
+
+        [Fact]
+        public void DeveAtualizarNomeDaCategoriaComNomeValido()
+        {
+            var category = new Category("Eletrônicos");
+            category.UpdateName("  Eletrodomésticos  ");
+            Assert.Equal("Eletrodomésticos", category.Name);
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData("   ")]
+        [InlineData("\t")]
+        public void NaoDeveAtualizarNomeDaCategoriaComNomeInvalido(string? name)
+        {
+            var category = new Category("Eletrônicos");
+            var exception = Assert.Throws<ArgumentException>(() => category.UpdateName(name!));
+            Assert.Equal(nameof(name), exception.ParamName);
+            Assert.Equal("Eletrônicos", category.Name);
+        }
+
+        [Fact]
+        public void DeveAtualizarDescricaoDaCategoriaComDescricaoValida()
+        {
+            var category = new Category("Eletrônicos");
+            category.UpdateDescription("  Celulares, televisores e computadores  ");
+            Assert.Equal("Celulares, televisores e computadores", category.Description);
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData("   ")]
+        [InlineData("\t")]
+        public void DeveRemoverDescricaoDaCategoriaQuandoReceberValorVazioOuNulo(string? description)
+        {
+            var category = new Category("Eletrônicos", "Celulares");
+            category.UpdateDescription(description);
+            Assert.Null(category.Description);
+        }
     }
 }
