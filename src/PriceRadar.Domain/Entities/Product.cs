@@ -7,8 +7,10 @@ public class Product
     public string Name { get; private set; }
     public string Brand { get; private set; }
     public string? Model { get; private set; }
+    public Guid CategoryId { get; private set; }
+    public Category Category { get; private set; }
 
-    public Product(string name, string brand, string? model = null)
+    public Product(string name, string brand, Category category, string? model = null)
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new ArgumentException("O nome do produto é obrigatório.", nameof(name));
@@ -20,6 +22,9 @@ public class Product
         Name = name.Trim();
         Brand = brand.Trim();
         Model = string.IsNullOrWhiteSpace(model) ? null : model.Trim();
+
+        Category = category ?? throw new ArgumentNullException(nameof(category));
+        CategoryId = Category.Id;
     }
 
     public void UpdateName(string name)
